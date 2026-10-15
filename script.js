@@ -120,7 +120,7 @@ async function loadCommunityPosts() {
 
   postsContainer.textContent = "Loading posts...";
 
-  const { data, error } = await abiaSupabase
+  const { data, error } = await client
     .from("community_posts")
     .select("*")
     .order("created_at", { ascending: false });
