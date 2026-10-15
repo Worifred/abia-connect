@@ -1,0 +1,82 @@
+const SUPABASE_URL = "https://lkxzaubfoahpoptlncvp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_jPGrPlV54UFgBXT22CQ5JA_cDnDn67c";
+
+let abiaSupabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const registrationForm = document.getElementById("registrationForm");
+const registrationMessage = document.getElementById("registrationMessage");
+
+registrationForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const fullName = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const age = Number(document.getElementById("age").value);
+  const gender = document.getElementById("gender").value;
+  const location = document.getElementById("location").value;
+  const abiaConnection = document.getElementById("abiaConnection").value; const aboutMe = document.getElementById("aboutMe").value.trim();
+  if (age < 18) {
+    registrationMessage.textContent =
+      "You must be at least 18 years old to join Abia Connect.";
+    return;
+  }
+
+  if (password.length < 8) {
+    registrationMessage.textContent =
+      "Your password must contain at least 8 characters.";
+    return;
+  }
+
+  registrationMessage.textContent = "Creating your account...";
+
+  try {
+    const { data, error } = await 
+    abiaSupabase.auth.signUp({
+  email: email,
+  password: password,
+  options: {
+    data: {
+      full_name: fullName,
+      age: age,
+      gender: gender,
+      location: location,
+      abia_connection: abiaConnection,
+      about_me: aboutMe
+    }
+  }
+});
+
+
+    if (error) throw error;
+if (!data.session) {
+  registrationMessage.textContent =
+    "Account created! Please check your email and click the confirmation link.";
+  return;
+}
+  if (data.user) {
+  const { error: profileError } = await abiaSupabase
+    .from("member_profiles")
+    .insert({
+      id: data.user.id,
+      full_name: fullName,
+      age: age,
+      gender: gender,
+      location: location,
+      abia_connection: abiaConnection,
+      about_me: aboutMe
+    });
+
+  if (profileError) throw profileError;
+
+  registrationMessage.textContent =
+    "Account created! Please check your email for a confirmation link.";
+}
+  } catch (error) {
+    registrationMessage.textContent =
+      "Registration could not be completed: " + error.message;
+  }
+});
