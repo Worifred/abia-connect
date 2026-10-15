@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abia Connect | Meet Your People</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <a href="#" class="logo">Abia<span>Connect</span></a>
+    <a href="#join" class="nav-button">Join Free</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">MADE FOR ABIA • MADE FOR CONNECTION</p>
+        <h1>Your person could be <span>closer than you think.</span></h1>
+        <p>Meet singles aged 18 and above who live in Abia State or are originally from Abia. Start a conversation and discover where it leads.</p>
+        <div class="hero-actions">
+          <a href="#join" class="primary-button">Find Your Connection</a>
+          <a href="#how-it-works" class="secondary-button">How It Works</a>
+        </div>
+        <p class="trust-note">♥ A community for adults aged 18 and above</p>
+      </div>
+
+      <div class="hero-art">
+        <div class="couple-emoji">🥰</div>
+        <h3>Real connections begin here</h3>
+        <p>Your Abia love story starts with hello.</p>
+      </div>
+    </section>
+
+    <section class="benefits" id="how-it-works">
+      <div class="section-heading">
+        <p class="eyebrow">A BETTER WAY TO MEET</p>
+        <h2>Connection starts with you.</h2>
+        <p>A welcoming community for Abians, wherever life has taken them.</p>
+      </div>
+
+      <div class="benefit-grid">
+        <article class="benefit-card">
+          <h3>💛 Meet Your People</h3>
+          <p>Discover adults who share a connection to Abia State.</p>
+        </article>
+        <article class="benefit-card">
+          <h3>💬 Start a Conversation</h3>
+          <p>Build connections through respectful conversations and mutual interest.</p>
+        </article>
+        <article class="benefit-card">
+          <h3>👑 Go VIP</h3>
+          <p>Optional premium features may be introduced in the future.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="join-section" id="join">
+      <h2>Join Abia Connect</h2>
+      <p>Create your profile and meet adults connected to Abia State.</p>
+
+      <form id="registrationForm" class="registration-form">
+        <label for="fullName">Full name</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+
+<label for="password">Create a password</label>
+<input
+  type="password"
+  id="password"
+  name="password"
+  placeholder="Create a password (at least 8 characters)"
+  minlength="8"
+  autocomplete="new-password"
+  required
+>
+
+        <label for="age">Age (18+ only)</label>
+        <input type="number" id="age" name="age" min="18" max="120" placeholder="Your age" required>
+
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" required>
+          <option value="">Select gender</option>
+          <option value="Woman">Woman</option>
+          <option value="Man">Man</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+
+        <label for="location">Where do you live?</label>
+        <select id="location" name="location" required>
+          <option value="">Select location</option>
+          <option value="Aba">Aba</option>
+          <option value="Umuahia">Umuahia</option>
+          <option value="Ohafia">Ohafia</option>
+          <option value="Other Abia location">Another location in Abia</option>
+          <option value="Outside Abia">Outside Abia State</option>
+        </select>
+
+        <label for="abiaConnection">Your connection to Abia</label>
+        <select id="abiaConnection" name="abiaConnection" required>
+          <option value="">Select one</option>
+          <option value="Living in Abia">I live in Abia</option>
+          <option value="Originally from Abia">I am originally from Abia</option>
+          <option value="Both">Both</option>
+        </select>
+
+        <label for="aboutMe">Tell us about yourself</label>
+        <textarea id="aboutMe" name="aboutMe" placeholder="Write a short introduction" rows="4" maxlength="500" required></textarea>
+
+        <label class="consent-label">
+          <input type="checkbox" id="ageConfirmation" required>
+          I confirm that I am 18 years old or above.
+        </label>
+
+        <label class="consent-label">
+          <input type="checkbox" id="privacyConfirmation" required>
+          I agree to the website's privacy terms.
+        </label>
+
+        <button type="submit" class="primary-button">Create My Profile</button>
+        <p id="registrationMessage" role="status"></p>
+        <p class="launch-note">Secure registration is still being configured. Please do not enter real personal details yet.</p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a href="#" class="logo">Abia<span>Connect</span></a>
+    <p>Meet genuinely. Connect respectfully.</p>
+    <p class="footer-small">18+ only. Protect your privacy and report suspicious behaviour.</p>
+    <p class="footer-small">© 2026 Abia Connect. All rights reserved.</p>
+  </footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+</body>
+</html>
