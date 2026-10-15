@@ -109,3 +109,46 @@ signInForm.addEventListener("submit", async function (event) {
     signInMessage.textContent = "Sign in failed: " + error.message;
   }
 });
+
+async function loadCommunityPosts() {
+  const postsContainer = document.getElementById("communityPosts");
+
+  if (!postsContainer) {
+    console.log("Community posts container not found.");
+    return;
+  }
+
+  postsContainer.textContent = "Loading posts...";
+
+  const { data, error } = await abiaSupabase
+    .from("community_posts")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Could not load posts:", error.message);
+    postsContainer.textContent = "Could not load posts. Please try again later.";
+    return;
+  }
+
+  postsContainer.replaceChildren();
+
+  if (!data || data.length === 0) {
+    postsContainer.textContent = "No community posts yet. Be the first to share!";
+    return;
+  }
+
+  data.forEach((post) => {
+    const postCard = document.createElement("div");
+    postCard.className = "community-post";
+
+    const postText = document.createElement("p");
+    postText.textContent = post.content;
+
+    const postDate = document.createElement("small");
+    postDate.textContent = new Date(post.created_at).toLocaleString();
+
+    postCard.append(postText, postDate);
+    postsContainer.appendChild(postCard);
+  });
+}
