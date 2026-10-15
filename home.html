@@ -75,9 +75,35 @@
     </section>
 
     <section class="members-card" id="discover">
-      <h2>Discover Members</h2>
-      <p>Member discovery will be connected here next.</p>
-    </section>
+  <h2>Discover Members</h2>
+  <p>Share your thoughts, see what your community is posting, and spread some love.</p>
+
+  <div class="create-post">
+    <h3>What's on your mind?</h3>
+    <form id="createPostForm">
+      <label for="postContent">Share something with the Abia Connect community</label>
+      <textarea
+        id="postContent"
+        placeholder="Write a post, share a story, or ask a question..."
+        maxlength="2000"
+        rows="4"
+        required
+      ></textarea>
+
+      <button type="submit" class="primary-button">Publish Post</button>
+      <p id="postMessage" role="status"></p>
+    </form>
+  </div>
+
+  <div class="feed-heading">
+    <h3>Community Feed</h3>
+    <p>See what other members are sharing.</p>
+  </div>
+
+  <div id="communityFeed">
+    <p>Loading community posts...</p>
+  </div>
+</section>
 
     <section class="members-card" id="friends">
       <h2>Find Friends</h2>
