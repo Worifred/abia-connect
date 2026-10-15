@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abia Connect | Members Home</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .members-home {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+    }
+    .members-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .members-card {
+      padding: 22px;
+      margin-top: 20px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 3px 15px rgba(0,0,0,.08);
+    }
+    .members-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .members-actions a, .members-actions button {
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 8px;
+      background: #14532d;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    #membersMessage {
+      margin-top: 15px;
+      color: #14532d;
+    }
+  </style>
+</head>
+<body>
+  <main class="members-home">
+    <header class="members-header">
+      <h1>Abia Connect</h1>
+      <button id="signOutButton" type="button">Sign out</button>
+    </header>
+
+    <section class="members-card">
+      <h2 id="welcomeHeading">Welcome to Abia Connect!</h2>
+      <p>Your community. Your people. Your connections.</p>
+      <p id="membersMessage">Checking your account...</p>
+    </section>
+
+    <section class="members-card">
+      <h2>Explore your community</h2>
+      <p>We're preparing your member experience.</p>
+      <div class="members-actions">
+        <a href="#discover">Discover Members</a>
+        <a href="#friends">Find Friends</a>
+        <a href="#chats">Chats</a>
+        <a href="#profile">My Profile</a>
+      </div>
+    </section>
+
+    <section class="members-card" id="discover">
+      <h2>Discover Members</h2>
+      <p>Member discovery will be connected here next.</p>
+    </section>
+
+    <section class="members-card" id="friends">
+      <h2>Find Friends</h2>
+      <p>Friend connections will be added here next.</p>
+    </section>
+
+    <section class="members-card" id="chats">
+      <h2>Chats</h2>
+      <p>Private messaging will be added here next.</p>
+    </section>
+
+    <section class="members-card" id="profile">
+      <h2>My Profile</h2>
+      <p>Your member profile will be connected here next.</p>
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://lkxzaubfoahpoptlncvp.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_jPGrPlV54UFgBXT22CQ5JA_cDnDn67c";
+
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const message = document.getElementById("membersMessage");
+    const heading = document.getElementById("welcomeHeading");
+
+    async function checkMember() {
+      const { data, error } = await client.auth.getSession();
+
+      if (error || !data.session) {
+        message.textContent =
+          "Your session isn't available yet. Please open the email confirmation link again.";
+        return;
+      }
+
+      const { data: userData } = await client.auth.getUser();
+      const user = userData.user;
+
+      if (user) {
+        heading.textContent =
+          "Welcome, " + (user.user_metadata.full_name || "Abia Connect member") + "!";
+        message.textContent = "You're signed in and ready to explore.";
+      }
+    }
+
+    document.getElementById("signOutButton").addEventListener("click", async () => {
+      await client.auth.signOut();
+      window.location.href = "index.html";
+    });
+
+    checkMember();
+  </script>
+</body>
+</html>
