@@ -81,3 +81,31 @@ if (!data.session) {
       "Registration could not be completed: " + error.message;
   }
 });
+
+
+const signInForm = document.getElementById("signInForm");
+const signInMessage = document.getElementById("signInMessage");
+
+signInForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const email = document.getElementById("signInEmail").value.trim();
+  const password = document.getElementById("signInPassword").value;
+
+  signInMessage.textContent = "Signing in...";
+
+  try {
+    const { data, error } = await abiaSupabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) throw error;
+
+    signInMessage.textContent = "Sign in successful! Opening your profile...";
+
+    window.location.href = "https://worifred.github.io/abia-connect/home.html";
+  } catch (error) {
+    signInMessage.textContent = "Sign in failed: " + error.message;
+  }
+});
