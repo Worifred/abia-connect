@@ -39,7 +39,8 @@ registrationForm.addEventListener("submit", async function (event) {
   email: email,
   password: password,
   options: {
-    data: {
+  emailRedirectTo: "https://worifred.github.io/abia-connect/home.html",
+  data: {
       full_name: fullName,
       age: age,
       gender: gender,
