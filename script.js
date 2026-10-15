@@ -152,3 +152,10 @@ async function loadCommunityPosts() {
     postsContainer.appendChild(postCard);
   });
 }
+
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", loadCommunityPosts);
+} else {
+  loadCommunityPosts();
+}
