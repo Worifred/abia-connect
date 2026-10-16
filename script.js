@@ -153,6 +153,53 @@ async function loadCommunityPosts() {
   });
 }
 
+const createPostForm = document.getElementById("createPostForm");
+
+if (createPostForm) {
+  createPostForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const postContent = document.getElementById("postContent");
+    const postMessage = document.getElementById("postMessage");
+    const content = postContent.value.trim();
+
+    if (!content) {
+      if (postMessage) postMessage.textContent = "Please write something first.";
+      return;
+    }
+
+    if (postMessage) postMessage.textContent = "Publishing your post...";
+
+    const { data: { user }, error: userError } =
+      await abiaSupabase.auth.getUser();
+
+    if (userError || !user) {
+      if (postMessage) {
+        postMessage.textContent = "Please sign in before publishing.";
+      }
+      return;
+    }
+
+    const { error } = await abiaSupabase
+      .from("community_posts")
+      .insert({
+        user_id: user.id,
+        content: content
+      });
+
+    if (error) {
+      console.error("Could not publish post:", error.message);
+      if (postMessage) {
+        postMessage.textContent = "Post failed: " + error.message;
+      }
+      return;
+    }
+
+    postContent.value = "";
+    if (postMessage) postMessage.textContent = "Your post was published!";
+    await loadCommunityPosts();
+  });
+}
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", loadCommunityPosts);
