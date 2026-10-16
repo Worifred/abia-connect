@@ -111,7 +111,7 @@ signInForm.addEventListener("submit", async function (event) {
 });
 
 async function loadCommunityPosts() {
-  const postsContainer = document.getElementById("communityPosts");
+ const postsContainer = document.getElementById("communityFeed"); 
 
   if (!postsContainer) {
     console.log("Community posts container not found.");
