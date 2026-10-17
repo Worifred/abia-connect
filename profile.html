@@ -139,6 +139,59 @@
       </p>
     </section>
   </main>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const PROFILE_SUPABASE_URL = "https://lkxzaubfoahpoptlncvp.supabase.co";
+  const PROFILE_SUPABASE_KEY = "sb_publishable_jPGrPlV54UFgBXT22CQ5JA_cDnDn67c";
+
+  const profileClient = window.supabase.createClient(
+    PROFILE_SUPABASE_URL,
+    PROFILE_SUPABASE_KEY
+  );
+
+  async function loadMemberProfile() {
+    const params = new URLSearchParams(window.location.search);
+    const memberId = params.get("id");
+
+    const nameElement = document.getElementById("memberName");
+    const aboutElement = document.getElementById("memberAbout");
+    const locationElement = document.getElementById("memberLocation");
+    const noteElement = document.getElementById("connectionNote");
+
+    if (!memberId) {
+      nameElement.textContent = "Member not found";
+      aboutElement.textContent = "No member was selected.";
+      locationElement.textContent = "Not available";
+      return;
+    }
+
+    const { data: profile, error } = await profileClient
+      .from("member_profiles")
+      .select("full_name, about_me, location")
+      .eq("id", memberId)
+      .maybeSingle();
+
+    if (error || !profile) {
+      nameElement.textContent = "Profile unavailable";
+      aboutElement.textContent = "This member's profile could not be loaded.";
+      locationElement.textContent = "Not available";
+      console.error("Profile loading error:", error?.message);
+      return;
+    }
+
+    nameElement.textContent = profile.full_name || "Abia Connect Member";
+    aboutElement.textContent = profile.about_me || "This member hasn't added a description yet.";
+    locationElement.textContent = profile.location || "Not provided";
+    noteElement.textContent =
+      "Messaging becomes available when both members choose Love.";
+  }
+
+  loadMemberProfile();
+</script>
+</body>
+
 </body>
 </html>
 
