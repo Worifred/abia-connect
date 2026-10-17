@@ -9,7 +9,8 @@ let abiaSupabase = window.supabase.createClient(
 const registrationForm = document.getElementById("registrationForm");
 const registrationMessage = document.getElementById("registrationMessage");
 
-registrationForm.addEventListener("submit", async function (event) {
+if (registrationForm) {
+  registrationForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const fullName = document.getElementById("fullName").value.trim();
@@ -80,7 +81,8 @@ if (!data.session) {
     registrationMessage.textContent =
       "Registration could not be completed: " + error.message;
   }
-});
+  });
+}
 
 
 const signInForm = document.getElementById("signInForm");
