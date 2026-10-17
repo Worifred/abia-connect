@@ -1,9 +1,9 @@
-var SUPABASE_URL = "https://lkxzaubfoahpoptlncvp.supabase.co";
-var SUPABASE_PUBLISHABLE_KEY = "sb_publishable_jPGrPlV54UFgBXT22CQ5JA_cDnDn67c";
+var ABIA_SUPABASE_URL = "https://lkxzaubfoahpoptlncvp.supabase.co";
+var ABIA_SUPABASE_PUBLISHABLE_KEY =  "sb_publishable_jPGrPlV54UFgBXT22CQ5JA_cDnDn67c";
 
 let abiaSupabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
+  ABIA_SUPABASE_URL,
+  ABIA_SUPABASE_PUBLISHABLE_KEY
 );
 
 const registrationForm = document.getElementById("registrationForm");
