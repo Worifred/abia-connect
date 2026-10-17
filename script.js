@@ -88,7 +88,8 @@ if (!data.session) {
 const signInForm = document.getElementById("signInForm");
 const signInMessage = document.getElementById("signInMessage");
 
-signInForm.addEventListener("submit", async function (event) {
+if (signInForm) {
+  signInForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const email = document.getElementById("signInEmail").value.trim();
@@ -107,10 +108,11 @@ signInForm.addEventListener("submit", async function (event) {
     signInMessage.textContent = "Sign in successful! Opening your profile...";
 
     window.location.href = "https://worifred.github.io/abia-connect/home.html";
-  } catch (error) {
+    } catch (error) {
     signInMessage.textContent = "Sign in failed: " + error.message;
   }
-});
+  });
+}
 
 async function loadCommunityPosts() {
  const postsContainer = document.getElementById("communityFeed"); 
