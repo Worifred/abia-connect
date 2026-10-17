@@ -115,16 +115,15 @@ if (signInForm) {
 }
 
 async function loadCommunityPosts() {
- const postsContainer = document.getElementById("communityFeed"); 
+  const postsContainer = document.getElementById("communityFeed");
 
   if (!postsContainer) {
-    console.log("Community posts container not found.");
     return;
   }
 
   postsContainer.textContent = "Loading posts...";
 
-  const { data, error } = await abiaSupabase
+  const { data: posts, error } = await abiaSupabase
     .from("community_posts")
     .select("*")
     .order("created_at", { ascending: false });
@@ -137,14 +136,27 @@ async function loadCommunityPosts() {
 
   postsContainer.replaceChildren();
 
-  if (!data || data.length === 0) {
+  if (!posts || posts.length === 0) {
     postsContainer.textContent = "No community posts yet. Be the first to share!";
     return;
   }
 
-  data.forEach((post) => {
+  for (const post of posts) {
     const postCard = document.createElement("div");
     postCard.className = "community-post";
+
+    const authorName = document.createElement("h4");
+    authorName.textContent = "Abia Connect Member";
+
+    const { data: profile } = await abiaSupabase
+      .from("member_profiles")
+      .select("full_name")
+      .eq("id", post.user_id)
+      .maybeSingle();
+
+    if (profile && profile.full_name) {
+      authorName.textContent = profile.full_name;
+    }
 
     const postText = document.createElement("p");
     postText.textContent = post.content;
@@ -152,11 +164,10 @@ async function loadCommunityPosts() {
     const postDate = document.createElement("small");
     postDate.textContent = new Date(post.created_at).toLocaleString();
 
-    postCard.append(postText, postDate);
+    postCard.append(authorName, postText, postDate);
     postsContainer.appendChild(postCard);
-  });
+  }
 }
-
 const createPostForm = document.getElementById("createPostForm");
 
 if (createPostForm) {
