@@ -1,1 +1,144 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Profile | Abia Connect</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #24313d;
+    }
+
+    header {
+      background: #183b32;
+      color: white;
+      padding: 18px 20px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 650px;
+      margin: 35px auto;
+      padding: 0 16px;
+    }
+
+    .profile-card {
+      background: white;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px #00000010;
+    }
+
+    .avatar {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: #e4eee9;
+      display: grid;
+      place-items: center;
+      font-size: 38px;
+    }
+
+    h1, .subtitle { text-align: center; }
+
+    h1 { margin-bottom: 8px; }
+
+    .subtitle { color: #687780; }
+
+    .detail {
+      padding: 16px 0;
+      border-top: 1px solid #e8ecef;
+    }
+
+    .detail h2 {
+      font-size: 16px;
+      margin: 0 0 8px;
+    }
+
+    .detail p {
+      margin: 0;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      border: 0;
+      border-radius: 10px;
+      padding: 13px 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .love { background: #fce7ed; color: #b42350; }
+    .message { background: #183b32; color: white; }
+
+    .note {
+      text-align: center;
+      color: #687780;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 420px) {
+      .profile-card { padding: 20px; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="home.html">← Back to Abia Connect</a>
+  </header>
+
+  <main>
+    <section class="profile-card">
+      <div class="avatar" aria-hidden="true">👤</div>
+      <h1 id="memberName">Member Profile</h1>
+      <p class="subtitle">Abia Connect community member</p>
+
+      <div class="detail">
+        <h2>About Me</h2>
+        <p id="memberAbout">Profile description will appear here.</p>
+      </div>
+
+      <div class="detail">
+        <h2>Location</h2>
+        <p id="memberLocation">Location will appear here.</p>
+      </div>
+
+      <div class="actions">
+        <button class="love" type="button" id="loveButton">❤️ Love</button>
+        <button class="message" type="button" id="messageButton">
+          💬 Start conversation
+        </button>
+      </div>
+
+      <p class="note" id="connectionNote">
+        Messaging becomes available when both members choose Love.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
+
