@@ -145,8 +145,12 @@ async function loadCommunityPosts() {
     const postCard = document.createElement("div");
     postCard.className = "community-post";
 
-    const authorName = document.createElement("h4");
-    authorName.textContent = "Abia Connect Member";
+    const authorName = document.createElement("a");
+authorName.href = "profile.html?id=" + encodeURIComponent(post.user_id);
+authorName.textContent = "Abia Connect Member";
+authorName.style.color = "inherit";
+authorName.style.textDecoration = "none";
+authorName.style.fontWeight = "bold";
 
     const { data: profile } = await abiaSupabase
       .from("member_profiles")
