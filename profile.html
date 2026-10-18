@@ -137,8 +137,38 @@
       <p class="note" id="connectionNote">
         Messaging becomes available when both members choose Love.
       </p>
+    
+    </section>
+
+    <section class="profile-card" id="editProfileSection">
+      <h2>Edit My Profile</h2>
+      <p>Update your own member details below.</p>
+
+      <form id="editProfileForm">
+        <label for="editFullName">Full name</label>
+        <input id="editFullName" type="text" required>
+
+        <label for="editAge">Age</label>
+        <input id="editAge" type="number" min="18" required>
+
+        <label for="editGender">Gender</label>
+        <input id="editGender" type="text" required>
+
+        <label for="editLocation">Location</label>
+        <input id="editLocation" type="text">
+
+        <label for="editAbiaConnection">Abia connection</label>
+        <input id="editAbiaConnection" type="text">
+
+        <label for="editAboutMe">About me</label>
+        <textarea id="editAboutMe" rows="4"></textarea>
+
+        <button type="submit">Save Profile Changes</button>
+        <p id="editProfileMessage" role="status"></p>
+      </form>
     </section>
   </main>
+
 
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -220,6 +250,90 @@
 
   alert("Love saved! You've shown that you'd like to connect.");
 });
+  
+  async function loadMyEditableProfile() {
+  const { data: { user }, error: userError } =
+    await profileClient.auth.getUser();
+
+  const message = document.getElementById("editProfileMessage");
+
+  if (userError || !user) {
+    message.textContent = "Please sign in to edit your profile.";
+    return;
+  }
+
+  const { data: profile, error } = await profileClient
+    .from("member_profiles")
+    .select("full_name, age, gender, location, abia_connection, about_me")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error || !profile) {
+    message.textContent = "Could not load your profile details.";
+    console.error("Profile edit loading error:", error);
+    return;
+  }
+
+  document.getElementById("editFullName").value = profile.full_name || "";
+  document.getElementById("editAge").value = profile.age || "";
+  document.getElementById("editGender").value = profile.gender || "";
+  document.getElementById("editLocation").value = profile.location || "";
+  document.getElementById("editAbiaConnection").value =
+    profile.abia_connection || "";
+  document.getElementById("editAboutMe").value = profile.about_me || "";
+}
+
+document.getElementById("editProfileForm").addEventListener(
+  "submit",
+  async function (event) {
+    event.preventDefault();
+
+    const message = document.getElementById("editProfileMessage");
+    message.textContent = "Saving your changes...";
+
+    const { data: { user }, error: userError } =
+      await profileClient.auth.getUser();
+
+    if (userError || !user) {
+      message.textContent = "Please sign in before saving.";
+      return;
+    }
+
+    const updates = {
+      full_name: document.getElementById("editFullName").value.trim(),
+      age: Number(document.getElementById("editAge").value),
+      gender: document.getElementById("editGender").value.trim(),
+      location: document.getElementById("editLocation").value.trim(),
+      abia_connection:
+        document.getElementById("editAbiaConnection").value.trim(),
+      about_me: document.getElementById("editAboutMe").value.trim()
+    };
+
+    const { data, error } = await profileClient
+      .from("member_profiles")
+      .update(updates)
+      .eq("id", user.id)
+      .select();
+
+    if (error) {
+      message.textContent = "Could not save changes. Please try again.";
+      console.error("Profile save error:", error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      message.textContent =
+        "No changes saved. Your profile update permission may need to be enabled.";
+      return;
+    }
+
+    message.textContent = "Profile updated successfully!";
+    loadMemberProfile();
+  }
+);
+
+loadMyEditableProfile();
+  
 </script>
 </body>
 
