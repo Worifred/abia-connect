@@ -189,6 +189,37 @@
   }
 
   loadMemberProfile();
+  document.getElementById("loveButton").addEventListener("click", async function () {
+  const params = new URLSearchParams(window.location.search);
+  const receiverId = params.get("id");
+
+  const { data: { user } } = await profileClient.auth.getUser();
+
+  if (!user) {
+    alert("Please sign in to choose Love.");
+    return;
+  }
+
+  if (!receiverId || receiverId === user.id) {
+    alert("You can choose Love on another member's profile, not your own.");
+    return;
+  }
+
+  const { error } = await profileClient
+    .from("member_connections")
+    .upsert(
+      { sender_id: user.id, receiver_id: receiverId },
+      { onConflict: "sender_id,receiver_id", ignoreDuplicates: true }
+    );
+
+  if (error) {
+    alert("Could not save your choice. Please try again.");
+    console.error(error);
+    return;
+  }
+
+  alert("Love saved! You've shown that you'd like to connect.");
+});
 </script>
 </body>
 
