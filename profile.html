@@ -129,6 +129,7 @@
 
       <div class="actions">
         <button class="love" type="button" id="loveButton">❤️ Love</button>
+        <button type="button" id="showEditProfileButton">✏️ Edit My Profile</button>
         <button class="message" type="button" id="messageButton">
           💬 Start conversation
         </button>
@@ -140,7 +141,7 @@
     
     </section>
 
-    <section class="profile-card" id="editProfileSection">
+    <section class="profile-card" id="editProfileSection" hidden>
       <h2>Edit My Profile</h2>
       <p>Update your own member details below.</p>
 
@@ -333,6 +334,18 @@ document.getElementById("editProfileForm").addEventListener(
 );
 
 loadMyEditableProfile();
+  const editProfileButton = document.getElementById("showEditProfileButton");
+const editProfileSection = document.getElementById("editProfileSection");
+
+editProfileButton.addEventListener("click", function () {
+  editProfileSection.hidden = !editProfileSection.hidden;
+
+  if (!editProfileSection.hidden) {
+    editProfileButton.textContent = "✖ Close Edit Profile";
+  } else {
+    editProfileButton.textContent = "✏️ Edit My Profile";
+  }
+});
   
 </script>
 </body>
