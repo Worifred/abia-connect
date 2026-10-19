@@ -735,13 +735,48 @@ async function setupMyProfileEditor() {
   document.getElementById("homeEditAbout").value =
     profile.about_me || "";
 
-  editButton.addEventListener("click", function () {
-    editForm.hidden = !editForm.hidden;
-    editMessage.textContent = "";
-    editButton.textContent = editForm.hidden
-      ? "✏️ Edit My Profile"
-      : "✖ Close Edit Profile";
-  });
+  
+editButton.addEventListener("click", async function () {
+  const { data: { user: currentUser } } =
+    await abiaSupabase.auth.getUser();
+
+  if (!currentUser) {
+    editMessage.textContent = "Please sign in again.";
+    return;
+  }
+
+  const { data: limit, error: limitError } = await abiaSupabase
+    .from("profile_edit_limits")
+    .select("last_edited_at")
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if (limitError) {
+    console.error("Edit limit check failed:", limitError);
+    editMessage.textContent =
+      "Could not check your profile editing limit. Please try again.";
+    return;
+  }
+
+  if (limit && limit.last_edited_at) {
+    const nextEditDate = new Date(limit.last_edited_at);
+    nextEditDate.setDate(nextEditDate.getDate() + 60);
+
+    if (new Date() < nextEditDate) {
+      editMessage.textContent =
+        "You can edit your profile again on " +
+        nextEditDate.toLocaleDateString() + ".";
+      return;
+    }
+  }
+
+  editForm.hidden = !editForm.hidden;
+  editMessage.textContent = "";
+  editButton.textContent = editForm.hidden
+    ? "✏️ Edit My Profile"
+    : "✖ Close Edit Profile";
+});
+
 
   editForm.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -767,6 +802,23 @@ async function setupMyProfileEditor() {
       console.error("Profile save error:", saveError);
       editMessage.textContent =
         "Could not save changes. Please try again.";
+      return;
+    }
+
+    const { error: limitSaveError } = await abiaSupabase
+      .from("profile_edit_limits")
+      .upsert(
+        {
+          user_id: user.id,
+          last_edited_at: new Date().toISOString()
+        },
+        { onConflict: "user_id" }
+      );
+
+    if (limitSaveError) {
+      console.error("Could not save edit limit:", limitSaveError);
+      editMessage.textContent =
+        "Your profile changed, but the 60-day limit could not be saved. Please contact support.";
       return;
     }
 
