@@ -172,22 +172,39 @@ authorName.style.fontWeight = "bold";
     // Add the post details
     postCard.append(authorName, postText, postDate);
 
-    // Comments section
+   
+    // Post actions: Wow and Comment
+    const postActions = document.createElement("div");
+    postActions.className = "post-actions";
+
+    const wowButton = document.createElement("button");
+    wowButton.type = "button";
+    wowButton.textContent = "❤️ Wow";
+    wowButton.className = "wow-button";
+
+    const wowCount = document.createElement("span");
+    wowCount.className = "wow-count";
+
+    const commentToggle = document.createElement("button");
+    commentToggle.type = "button";
+    commentToggle.textContent = "💬 Comment";
+    commentToggle.className = "comment-toggle";
+
+    postActions.append(wowButton, wowCount, commentToggle);
+
+    // Comments stay hidden until Comment is clicked
     const commentsSection = document.createElement("div");
     commentsSection.className = "post-comments";
-
-    const commentsHeading = document.createElement("h4");
-    commentsHeading.textContent = "Comments";
+    commentsSection.hidden = true;
 
     const commentsList = document.createElement("div");
     commentsList.className = "comments-list";
-    commentsList.textContent = "Loading comments...";
 
     const commentForm = document.createElement("form");
     commentForm.className = "comment-form";
 
     const commentInput = document.createElement("textarea");
-    commentInput.placeholder = "Write a comment...";
+    commentInput.placeholder = "Write something about this post...";
     commentInput.maxLength = 1000;
     commentInput.required = true;
     commentInput.rows = 2;
@@ -200,14 +217,96 @@ authorName.style.fontWeight = "bold";
     commentMessage.className = "comment-message";
 
     commentForm.append(commentInput, commentButton);
-    commentsSection.append(
-      commentsHeading,
-      commentsList,
-      commentForm,
-      commentMessage
-    );
-    postCard.appendChild(commentsSection);
+    commentsSection.append(commentsList, commentForm, commentMessage);
+
+    postCard.append(postActions, commentsSection);
     postsContainer.appendChild(postCard);
+
+    // Open or close the comment area
+    commentToggle.addEventListener("click", async function () {
+      commentsSection.hidden = !commentsSection.hidden;
+
+      if (!commentsSection.hidden) {
+        await loadComments();
+      }
+    });
+
+    // Load saved Wow reactions
+    async function loadWows() {
+      const { count, error } = await abiaSupabase
+        .from("post_wows")
+        .select("*", { count: "exact", head: true })
+        .eq("post_id", post.id);
+
+      if (error) {
+        console.error("Could not load Wow reactions:", error.message);
+        wowCount.textContent = "";
+        return;
+      }
+
+      wowCount.textContent = `${count || 0} Wows`;
+    }
+
+    // Add a Wow reaction
+    wowButton.addEventListener("click", async function () {
+      wowButton.disabled = true;
+
+      try {
+        const {
+          data: { user },
+          error: userError
+        } = await abiaSupabase.auth.getUser();
+
+        if (userError || !user) {
+          alert("Please sign in to react to a post.");
+          return;
+        }
+
+        const { data: existingWow, error: checkError } =
+          await abiaSupabase
+            .from("post_wows")
+            .select("id")
+            .eq("post_id", post.id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        if (checkError) {
+          console.error("Could not check Wow reaction:", checkError.message);
+          alert("Could not check your reaction. Please try again.");
+          return;
+        }
+
+        if (existingWow) {
+          const { error } = await abiaSupabase
+            .from("post_wows")
+            .delete()
+            .eq("id", existingWow.id);
+
+          if (error) {
+            console.error("Could not remove Wow:", error.message);
+            alert("Could not update your reaction.");
+            return;
+          }
+        } else {
+          const { error } = await abiaSupabase
+            .from("post_wows")
+            .insert({
+              post_id: post.id,
+              user_id: user.id
+            });
+
+          if (error) {
+            console.error("Could not save Wow:", error.message);
+            alert("Could not save your reaction. Please try again.");
+            return;
+          }
+        }
+
+        await loadWows();
+      } finally {
+        wowButton.disabled = false;
+      }
+    });
 
     // Load comments for this post
     async function loadComments() {
@@ -282,8 +381,7 @@ authorName.style.fontWeight = "bold";
         } = await abiaSupabase.auth.getUser();
 
         if (userError || !user) {
-          commentMessage.textContent =
-            "Please sign in to comment.";
+          commentMessage.textContent = "Please sign in to comment.";
           return;
         }
 
@@ -297,8 +395,7 @@ authorName.style.fontWeight = "bold";
 
         if (error) {
           console.error("Could not save comment:", error.message);
-          commentMessage.textContent =
-            "Comment failed: " + error.message;
+          commentMessage.textContent = "Comment failed: " + error.message;
           return;
         }
 
@@ -314,7 +411,8 @@ authorName.style.fontWeight = "bold";
       }
     });
 
-    await loadComments();
+    await loadWows();
+
 
   }
 }
