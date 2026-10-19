@@ -396,12 +396,38 @@
 </section>
 
 
-    <section class="members-card" id="chats">
-      <h2>Chats</h2>
-      <p>Private messaging will be added here next.</p>
-    </section>
+   
+<section class="members-card" id="chats">
+  <h2>Chats</h2>
+  <p id="chatStatus">Loading your matched conversations...</p>
 
-    
+  <div id="conversationsList"></div>
+
+  <div id="chatWindow" hidden>
+    <h3 id="chatPartnerName">Conversation</h3>
+
+    <div
+      id="chatMessages"
+      aria-live="polite"
+      style="max-height: 350px; overflow-y: auto; padding: 12px;"
+    ></div>
+
+    <form id="chatMessageForm">
+      <textarea
+        id="chatMessageInput"
+        placeholder="Write your message..."
+        maxlength="2000"
+        required
+        rows="3"
+      ></textarea>
+
+      <button type="submit" id="sendChatMessageButton">
+        Send Message
+      </button>
+    </form>
+  </div>
+</section>
+
 <section class="members-card" id="profile">
   <h2>👤 My Profile</h2>
   <p>View your Abia Connect membership details.</p>
