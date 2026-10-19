@@ -300,6 +300,23 @@ authorName.style.fontWeight = "bold";
             alert("Could not save your reaction. Please try again.");
             return;
           }
+          
+if (post.user_id !== user.id) {
+  const { error: notificationError } = await abiaSupabase
+    .from("notifications")
+    .insert({
+      recipient_id: post.user_id,
+      sender_id: user.id,
+      type: "wow",
+      post_id: post.id,
+      message: "Someone gave your post a Wow!"
+    });
+
+  if (notificationError) {
+    console.error("Wow notification failed:", notificationError.message);
+  }
+}
+
         }
 
         await loadWows();
