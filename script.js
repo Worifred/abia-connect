@@ -498,8 +498,69 @@ if (createPostForm) {
   });
 }
 
+
+async function loadNotifications() {
+  const notificationsList = document.getElementById("notificationsList");
+
+  if (!notificationsList) return;
+
+  const {
+    data: { user },
+    error: userError
+  } = await abiaSupabase.auth.getUser();
+
+  if (userError || !user) {
+    notificationsList.textContent = "Please sign in to view your notifications.";
+    return;
+  }
+
+  notificationsList.textContent = "Loading notifications...";
+
+  const { data: notifications, error } = await abiaSupabase
+    .from("notifications")
+    .select("id, sender_id, type, post_id, message, is_read, created_at")
+    .eq("recipient_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Could not load notifications:", error.message);
+    notificationsList.textContent = "Could not load notifications. Please try again later.";
+    return;
+  }
+
+  notificationsList.replaceChildren();
+
+  if (!notifications || notifications.length === 0) {
+    notificationsList.textContent = "You have no notifications yet.";
+    return;
+  }
+
+  for (const notification of notifications) {
+    const item = document.createElement("div");
+    item.className = "notification-item";
+
+    const message = document.createElement("p");
+    message.textContent = notification.message;
+
+    const date = document.createElement("small");
+    date.textContent = new Date(notification.created_at).toLocaleString();
+
+    if (!notification.is_read) {
+      item.style.fontWeight = "bold";
+    }
+
+    item.append(message, date);
+    notificationsList.appendChild(item);
+  }
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", loadCommunityPosts);
+  document.addEventListener("DOMContentLoaded", function () {
+    loadCommunityPosts();
+    loadNotifications();
+  });
 } else {
   loadCommunityPosts();
+  loadNotifications();
 }
+
