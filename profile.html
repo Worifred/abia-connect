@@ -449,8 +449,7 @@ locationElement.textContent = profile.location || "Not provided";
 ageElement.textContent = profile.age ? profile.age + " years old" : "Not provided";
 noteElement.textContent =
   "Messaging becomes available when both members choose Love.";
-
-  loadMemberProfile();
+}
   document.getElementById("loveButton").addEventListener("click", async function () {
   const params = new URLSearchParams(window.location.search);
   const receiverId = params.get("id");
@@ -580,8 +579,6 @@ editProfileButton.addEventListener("click", function () {
 });
   
 </script>
-</body>
-
 </body>
 </html>
 
