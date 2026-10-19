@@ -510,6 +510,59 @@ document.getElementById("loveButton").addEventListener("click", async function (
     return;
   }
 
+  // Check whether the other member has also chosen Love.
+  const { data: reverseLove, error: matchCheckError } =
+    await profileClient
+      .from("member_connections")
+      .select("id")
+      .eq("sender_id", receiverId)
+      .eq("receiver_id", user.id)
+      .maybeSingle();
+
+  if (matchCheckError) {
+    console.error("Mutual Love check failed:", matchCheckError);
+    alert("Love was saved and the member was notified, but we couldn't check for a match yet.");
+    return;
+  }
+
+  if (reverseLove) {
+    // Use the same user order for both members to avoid duplicate conversations.
+    const userOne = user.id < receiverId ? user.id : receiverId;
+    const userTwo = user.id < receiverId ? receiverId : user.id;
+
+    const { data: existingConversation, error: conversationCheckError } =
+      await profileClient
+        .from("conversations")
+        .select("id")
+        .eq("user_one", userOne)
+        .eq("user_two", userTwo)
+        .maybeSingle();
+
+    if (conversationCheckError) {
+      console.error("Conversation check failed:", conversationCheckError);
+      alert("It's a mutual match! However, we couldn't check the chat yet.");
+      return;
+    }
+
+    if (!existingConversation) {
+      const { error: conversationError } = await profileClient
+        .from("conversations")
+        .insert({
+          user_one: userOne,
+          user_two: userTwo
+        });
+
+      if (conversationError) {
+        console.error("Conversation creation failed:", conversationError);
+        alert("It's a mutual match, but we couldn't create the chat yet.");
+        return;
+      }
+    }
+
+    alert("It's a match! ❤️ You both chose Love. You can now connect!");
+    return;
+  }
+
   alert("Love saved! The member has been notified.");
 });
 
