@@ -461,13 +461,15 @@ ageElement.textContent = profile.age ? profile.age + " years old" : "Not provide
 noteElement.textContent =
   "Messaging becomes available when both members choose Love.";
 }
-  document.getElementById("loveButton").addEventListener("click", async function () {
+  
+document.getElementById("loveButton").addEventListener("click", async function () {
   const params = new URLSearchParams(window.location.search);
   const receiverId = params.get("id");
 
-  const { data: { user } } = await profileClient.auth.getUser();
+  const { data: { user }, error: userError } =
+    await profileClient.auth.getUser();
 
-  if (!user) {
+  if (userError || !user) {
     alert("Please sign in to choose Love.");
     return;
   }
@@ -477,22 +479,40 @@ noteElement.textContent =
     return;
   }
 
-  const { error } = await profileClient
+  // Save the Love choice.
+  const { error: connectionError } = await profileClient
     .from("member_connections")
     .upsert(
       { sender_id: user.id, receiver_id: receiverId },
       { onConflict: "sender_id,receiver_id", ignoreDuplicates: true }
     );
 
-  if (error) {
+  if (connectionError) {
     alert("Could not save your choice. Please try again.");
-    console.error(error);
+    console.error("Love save error:", connectionError);
     return;
   }
 
-  alert("Love saved! You've shown that you'd like to connect.");
+  // Notify the member who received the Love.
+  const { error: notificationError } = await profileClient
+    .from("notifications")
+    .insert({
+      sender_id: user.id,
+      recipient_id: receiverId,
+      type: "love",
+      post_id: null,
+      message: "Someone has chosen Love on your profile."
+    });
+
+  if (notificationError) {
+    console.error("Love notification error:", notificationError);
+    alert("Your Love choice was saved, but the notification could not be sent.");
+    return;
+  }
+
+  alert("Love saved! The member has been notified.");
 });
-  
+
   async function loadMyEditableProfile() {
   const { data: { user }, error: userError } =
     await profileClient.auth.getUser();
