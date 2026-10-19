@@ -736,7 +736,17 @@ async function setupMyProfileEditor() {
     profile.about_me || "";
 
   
+
 editButton.addEventListener("click", async function () {
+  // Close the form immediately without checking the cooldown.
+  if (!editForm.hidden) {
+    editForm.hidden = true;
+    editForm.style.display = "none";
+    editMessage.textContent = "";
+    editButton.textContent = "✏️ Edit My Profile";
+    return;
+  }
+
   const { data: { user: currentUser } } =
     await abiaSupabase.auth.getUser();
 
@@ -770,11 +780,10 @@ editButton.addEventListener("click", async function () {
     }
   }
 
-  editForm.hidden = !editForm.hidden;
+  editForm.hidden = false;
+  editForm.style.display = "grid";
   editMessage.textContent = "";
-  editButton.textContent = editForm.hidden
-    ? "✏️ Edit My Profile"
-    : "✖ Close Edit Profile";
+  editButton.textContent = "✖ Close Edit Profile";
 });
 
 
