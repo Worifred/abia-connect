@@ -358,6 +358,11 @@ button:hover {
       
 <div class="actions">
   <button class="love" type="button" id="loveButton">❤️ Love</button>
+
+  <button type="button" id="showEditProfileButton" hidden>
+    ✏️ Edit My Profile
+  </button>
+
   <button class="message" type="button" id="messageButton">
     💬 Start conversation
   </button>
@@ -414,6 +419,12 @@ button:hover {
   async function loadMemberProfile() {
     const params = new URLSearchParams(window.location.search);
     const memberId = params.get("id");
+        const { data: { user } } = await profileClient.auth.getUser();
+    const editButton = document.getElementById("showEditProfileButton");
+
+    if (editButton) {
+      editButton.hidden = !user || user.id !== memberId;
+    }
 
     const nameElement = document.getElementById("memberName");
     const aboutElement = document.getElementById("memberAbout");
