@@ -344,19 +344,25 @@ button:hover {
         <h2>About Me</h2>
         <p id="memberAbout">Profile description will appear here.</p>
       </div>
+      
+<div class="detail">
+  <h2>Age</h2>
+  <p id="memberAge">Age will appear here.</p>
+</div>
 
       <div class="detail">
         <h2>Location</h2>
         <p id="memberLocation">Location will appear here.</p>
       </div>
 
-      <div class="actions">
-        <button class="love" type="button" id="loveButton">❤️ Love</button>
-        <button type="button" id="showEditProfileButton">✏️ Edit My Profile</button>
-        <button class="message" type="button" id="messageButton">
-          💬 Start conversation
-        </button>
-      </div>
+      
+<div class="actions">
+  <button class="love" type="button" id="loveButton">❤️ Love</button>
+  <button class="message" type="button" id="messageButton">
+    💬 Start conversation
+  </button>
+</div>
+
 
       <p class="note" id="connectionNote">
         Messaging becomes available when both members choose Love.
@@ -412,18 +418,20 @@ button:hover {
     const nameElement = document.getElementById("memberName");
     const aboutElement = document.getElementById("memberAbout");
     const locationElement = document.getElementById("memberLocation");
+    const ageElement = document.getElementById("memberAge");
     const noteElement = document.getElementById("connectionNote");
 
-    if (!memberId) {
-      nameElement.textContent = "Member not found";
-      aboutElement.textContent = "No member was selected.";
-      locationElement.textContent = "Not available";
-      return;
-    }
+   if (!memberId) {
+  nameElement.textContent = "Member not found";
+  aboutElement.textContent = "No member was selected.";
+  locationElement.textContent = "Not available";
+  ageElement.textContent = "Not available";
+  return;
+}
 
     const { data: profile, error } = await profileClient
       .from("member_profiles")
-      .select("full_name, about_me, location")
+      .select("full_name, age, about_me, location")
       .eq("id", memberId)
       .maybeSingle();
 
@@ -435,12 +443,12 @@ button:hover {
       return;
     }
 
-    nameElement.textContent = profile.full_name || "Abia Connect Member";
-    aboutElement.textContent = profile.about_me || "This member hasn't added a description yet.";
-    locationElement.textContent = profile.location || "Not provided";
-    noteElement.textContent =
-      "Messaging becomes available when both members choose Love.";
-  }
+   nameElement.textContent = profile.full_name || "Abia Connect Member";
+aboutElement.textContent = profile.about_me || "This member hasn't added a description yet.";
+locationElement.textContent = profile.location || "Not provided";
+ageElement.textContent = profile.age ? profile.age + " years old" : "Not provided";
+noteElement.textContent =
+  "Messaging becomes available when both members choose Love.";
 
   loadMemberProfile();
   document.getElementById("loveButton").addEventListener("click", async function () {
