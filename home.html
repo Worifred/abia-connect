@@ -248,6 +248,34 @@
     <p><strong>Abia connection:</strong> <span id="myProfileConnection"></span></p>
     <p><strong>About me:</strong> <span id="myProfileAbout"></span></p>
   </div>
+  
+<button type="button" id="homeEditProfileButton">
+  ✏️ Edit My Profile
+</button>
+
+<form id="homeEditProfileForm" hidden>
+  <label for="homeEditName">Full name</label>
+  <input id="homeEditName" type="text" required>
+
+  <label for="homeEditAge">Age</label>
+  <input id="homeEditAge" type="number" min="18" required>
+
+  <label for="homeEditGender">Gender</label>
+  <input id="homeEditGender" type="text" required>
+
+  <label for="homeEditLocation">Location</label>
+  <input id="homeEditLocation" type="text">
+
+  <label for="homeEditConnection">Abia connection</label>
+  <input id="homeEditConnection" type="text">
+
+  <label for="homeEditAbout">About me</label>
+  <textarea id="homeEditAbout" rows="4"></textarea>
+
+  <button type="submit">Save Profile Changes</button>
+  <p id="homeEditMessage" role="status"></p>
+</form>
+
 </section>
 
   </main>
