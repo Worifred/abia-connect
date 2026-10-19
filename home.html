@@ -114,6 +114,37 @@
   margin: 0;
 }
     
+/* Show only the section selected from the icon menu */
+.members-home > .members-card.section-hidden {
+  display: none;
+}
+
+.members-actions.icon-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.members-actions.icon-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 25px;
+  text-decoration: none;
+  background: #fff0f6;
+  border: 1px solid #f3b6d2;
+}
+
+.members-actions.icon-menu a:hover {
+  background: #ffd6e8;
+}
+
+    
   </style>
 </head>
 <body>
@@ -132,12 +163,13 @@
     <section class="members-card">
       <h2>Explore your community</h2>
       <p>We're preparing your member experience.</p>
-      <div class="members-actions">
-        <a href="#discover">Discover Members</a>
-        <a href="#friends">Find Friends</a>
-        <a href="#chats">Chats</a>
-        <a href="#profile">My Profile</a>
-      </div>
+      <div class="members-actions icon-menu">
+  <a href="#discover" aria-label="Discover Members" title="Discover Members">🔎</a>
+  <a href="#notifications" aria-label="Notifications" title="Notifications">🔔</a>
+  <a href="#friends" aria-label="Find Friends" title="Find Friends">👥</a>
+  <a href="#chats" aria-label="Chats" title="Chats">💬</a>
+  <a href="#profile" aria-label="My Profile" title="My Profile">👤</a>
+</div>
     </section>
 
     <section class="members-card" id="discover">
@@ -238,6 +270,48 @@ checkMember();
 </script>
 
 <script src="script.js"></script>
+  
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sectionIds = [
+    "discover",
+    "notifications",
+    "friends",
+    "chats",
+    "profile"
+  ];
+
+  function showSection(sectionId) {
+    sectionIds.forEach(function (id) {
+      const section = document.getElementById(id);
+
+      if (section) {
+        section.classList.toggle("section-hidden", id !== sectionId);
+      }
+    });
+  }
+
+  sectionIds.forEach(function (id) {
+    const section = document.getElementById(id);
+
+    if (section) {
+      section.classList.add("section-hidden");
+    }
+  });
+
+  document.querySelectorAll(".icon-menu a").forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      const sectionId = link.getAttribute("href").slice(1);
+
+      if (sectionIds.includes(sectionId)) {
+        event.preventDefault();
+        showSection(sectionId);
+      }
+    });
+  });
+});
+</script>
+
 </body>
 </html>
 
