@@ -554,13 +554,102 @@ async function loadNotifications() {
   }
 }
 
+async function loadFriends() {
+  const friendsList = document.getElementById("friendsList");
+  const friendsMessage = document.getElementById("friendsMessage");
+
+  if (!friendsList) return;
+
+  friendsList.replaceChildren();
+
+  if (friendsMessage) {
+    friendsMessage.textContent = "Loading Abia Connect members...";
+  }
+
+  const {
+    data: { user },
+    error: userError
+  } = await abiaSupabase.auth.getUser();
+
+  if (userError || !user) {
+    if (friendsMessage) {
+      friendsMessage.textContent = "Please sign in to discover members.";
+    }
+    return;
+  }
+
+  const { data: profiles, error } = await abiaSupabase
+    .from("member_profiles")
+    .select("id, full_name, age, gender, location, abia_connection, about_me")
+    .neq("id", user.id)
+    .order("full_name", { ascending: true });
+
+  if (error) {
+    console.error("Could not load members:", error.message);
+
+    if (friendsMessage) {
+      friendsMessage.textContent =
+        "Could not load members. We may need to check the profile viewing permissions.";
+    }
+    return;
+  }
+
+  if (!profiles || profiles.length === 0) {
+    if (friendsMessage) {
+      friendsMessage.textContent =
+        "No other member profiles are available yet.";
+    }
+    return;
+  }
+
+  if (friendsMessage) {
+    friendsMessage.textContent =
+      profiles.length + " other member(s) in Abia Connect";
+  }
+
+  profiles.forEach(function (profile) {
+    const card = document.createElement("article");
+    card.className = "friend-card";
+
+    const name = document.createElement("h3");
+    name.textContent = profile.full_name || "Abia Connect Member";
+
+    const details = document.createElement("p");
+    const detailParts = [];
+
+    if (profile.age) detailParts.push(profile.age);
+    if (profile.gender) detailParts.push(profile.gender);
+    if (profile.location) detailParts.push(profile.location);
+
+    details.textContent = detailParts.join(" · ");
+
+    const connection = document.createElement("p");
+    connection.textContent = profile.abia_connection
+      ? "Abia connection: " + profile.abia_connection
+      : "";
+
+    const about = document.createElement("p");
+    about.textContent = profile.about_me || "This member hasn't added an introduction yet.";
+
+    const viewButton = document.createElement("a");
+    viewButton.href = "profile.html?id=" + encodeURIComponent(profile.id);
+    viewButton.textContent = "View Profile";
+    viewButton.className = "primary-button";
+
+    card.append(name, details, connection, about, viewButton);
+    friendsList.appendChild(card);
+  });
+}
+
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", function () {
     loadCommunityPosts();
     loadNotifications();
+    loadFriends();
   });
 } else {
   loadCommunityPosts();
   loadNotifications();
+  loadFriends();
 }
-
