@@ -641,15 +641,68 @@ async function loadFriends() {
   });
 }
 
+async function loadMyProfile() {
+  const profileMessage = document.getElementById("myProfileMessage");
+
+  if (!profileMessage) return;
+
+  profileMessage.textContent = "Loading your profile...";
+
+  const {
+    data: { user },
+    error: userError
+  } = await abiaSupabase.auth.getUser();
+
+  if (userError || !user) {
+    profileMessage.textContent = "Please sign in to view your profile.";
+    return;
+  }
+
+  const { data: profile, error } = await abiaSupabase
+    .from("member_profiles")
+    .select("full_name, age, gender, location, abia_connection, about_me")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Could not load your profile:", error.message);
+    profileMessage.textContent =
+      "Could not load your profile. Please try again later.";
+    return;
+  }
+
+  if (!profile) {
+    profileMessage.textContent =
+      "Your profile details are not available yet.";
+    return;
+  }
+
+  document.getElementById("myProfileName").textContent =
+    profile.full_name || "Not provided";
+  document.getElementById("myProfileAge").textContent =
+    profile.age ?? "Not provided";
+  document.getElementById("myProfileGender").textContent =
+    profile.gender || "Not provided";
+  document.getElementById("myProfileLocation").textContent =
+    profile.location || "Not provided";
+  document.getElementById("myProfileConnection").textContent =
+    profile.abia_connection || "Not provided";
+  document.getElementById("myProfileAbout").textContent =
+    profile.about_me || "Not provided";
+
+  profileMessage.textContent = "";
+}
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", function () {
     loadCommunityPosts();
     loadNotifications();
     loadFriends();
+    loadMyProfile();
   });
 } else {
   loadCommunityPosts();
   loadNotifications();
   loadFriends();
+  loadMyProfile();
 }
