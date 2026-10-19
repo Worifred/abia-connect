@@ -415,6 +415,23 @@ if (post.user_id !== user.id) {
           commentMessage.textContent = "Comment failed: " + error.message;
           return;
         }
+        
+if (post.user_id !== user.id) {
+  const { error: notificationError } = await abiaSupabase
+    .from("notifications")
+    .insert({
+      recipient_id: post.user_id,
+      sender_id: user.id,
+      type: "comment",
+      post_id: post.id,
+      message: "Someone commented on your post!"
+    });
+
+  if (notificationError) {
+    console.error("Comment notification failed:", notificationError.message);
+  }
+}
+
 
         commentInput.value = "";
         commentMessage.textContent = "Comment added successfully!";
