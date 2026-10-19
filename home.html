@@ -144,6 +144,172 @@
   background: #ffd6e8;
 }
 
+/* Polished Abia Connect dashboard sections */
+#profile,
+#friends,
+#notifications {
+  max-width: 1000px;
+  margin: 28px auto;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #f0d5e2;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(110, 38, 73, 0.08);
+  box-sizing: border-box;
+}
+
+#profile h2,
+#friends h2,
+#notifications h2 {
+  margin: 0 0 12px;
+  color: #a52d68;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+#profile > p,
+#friends > p,
+#notifications > p {
+  color: #786775;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+#myProfileDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+
+#myProfileDetails p {
+  margin: 0;
+  padding: 16px;
+  background: #fff8fb;
+  border: 1px solid #f0dce5;
+  border-radius: 12px;
+  color: #44313d;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+#myProfileDetails strong {
+  color: #a52d68;
+}
+
+#homeEditProfileForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+  margin-top: 22px;
+  padding: 22px;
+  background: #fffafd;
+  border: 1px solid #f0d5e2;
+  border-radius: 14px;
+}
+
+#homeEditProfileForm label {
+  display: block;
+  margin-top: 8px;
+  color: #70264b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#homeEditProfileForm input,
+#homeEditProfileForm textarea,
+#homeEditProfileForm select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-top: 7px;
+  padding: 12px 14px;
+  border: 1px solid #dfc6d2;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #342832;
+  font: inherit;
+}
+
+#homeEditProfileButton,
+#homeEditProfileForm button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  background: #c23d7b;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#homeEditProfileButton:hover,
+#homeEditProfileForm button:hover {
+  background: #9f2d62;
+}
+
+#friendsList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.friend-card {
+  min-width: 0;
+  padding: 22px;
+  background: #fffafd;
+  border: 1px solid #f0d5e2;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(110, 38, 73, 0.05);
+  overflow-wrap: anywhere;
+}
+
+.friend-card h3 {
+  color: #a52d68;
+  margin-top: 0;
+}
+
+.friend-card p {
+  color: #655460;
+  line-height: 1.7;
+}
+
+#notificationsList {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.notification-item {
+  padding: 18px;
+  background: #fffafd;
+  border: 1px solid #f0d5e2;
+  border-left: 4px solid #c23d7b;
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.notification-item p {
+  margin-top: 0;
+  color: #44313d;
+  line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+  #profile,
+  #friends,
+  #notifications {
+    margin: 18px auto;
+    padding: 20px 16px;
+  }
+
+  #myProfileDetails,
+  #friendsList,
+  #homeEditProfileForm {
+    grid-template-columns: 1fr;
+  }
+}
     
   </style>
 </head>
