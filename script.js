@@ -168,8 +168,154 @@ authorName.style.fontWeight = "bold";
     const postDate = document.createElement("small");
     postDate.textContent = new Date(post.created_at).toLocaleString();
 
+    
+    // Add the post details
     postCard.append(authorName, postText, postDate);
+
+    // Comments section
+    const commentsSection = document.createElement("div");
+    commentsSection.className = "post-comments";
+
+    const commentsHeading = document.createElement("h4");
+    commentsHeading.textContent = "Comments";
+
+    const commentsList = document.createElement("div");
+    commentsList.className = "comments-list";
+    commentsList.textContent = "Loading comments...";
+
+    const commentForm = document.createElement("form");
+    commentForm.className = "comment-form";
+
+    const commentInput = document.createElement("textarea");
+    commentInput.placeholder = "Write a comment...";
+    commentInput.maxLength = 1000;
+    commentInput.required = true;
+    commentInput.rows = 2;
+
+    const commentButton = document.createElement("button");
+    commentButton.type = "submit";
+    commentButton.textContent = "Add Comment";
+
+    const commentMessage = document.createElement("p");
+    commentMessage.className = "comment-message";
+
+    commentForm.append(commentInput, commentButton);
+    commentsSection.append(
+      commentsHeading,
+      commentsList,
+      commentForm,
+      commentMessage
+    );
+    postCard.appendChild(commentsSection);
     postsContainer.appendChild(postCard);
+
+    // Load comments for this post
+    async function loadComments() {
+      commentsList.textContent = "Loading comments...";
+
+      const { data: comments, error } = await abiaSupabase
+        .from("comments")
+        .select("*")
+        .eq("post_id", post.id)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Could not load comments:", error.message);
+        commentsList.textContent = "Could not load comments.";
+        return;
+      }
+
+      commentsList.replaceChildren();
+
+      if (!comments || comments.length === 0) {
+        commentsList.textContent = "No comments yet. Start the conversation!";
+        return;
+      }
+
+      for (const comment of comments) {
+        const commentCard = document.createElement("div");
+        commentCard.className = "comment-item";
+
+        const commentAuthor = document.createElement("strong");
+        commentAuthor.textContent = "Abia Connect Member";
+
+        const { data: commenter } = await abiaSupabase
+          .from("member_profiles")
+          .select("full_name")
+          .eq("id", comment.user_id)
+          .maybeSingle();
+
+        if (commenter && commenter.full_name) {
+          commentAuthor.textContent = commenter.full_name;
+        }
+
+        const commentText = document.createElement("p");
+        commentText.textContent = comment.content;
+
+        const commentDate = document.createElement("small");
+        commentDate.textContent =
+          new Date(comment.created_at).toLocaleString();
+
+        commentCard.append(commentAuthor, commentText, commentDate);
+        commentsList.appendChild(commentCard);
+      }
+    }
+
+    // Save a new comment
+    commentForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const content = commentInput.value.trim();
+
+      if (!content) {
+        commentMessage.textContent = "Please write a comment first.";
+        return;
+      }
+
+      commentButton.disabled = true;
+      commentMessage.textContent = "Posting your comment...";
+
+      try {
+        const {
+          data: { user },
+          error: userError
+        } = await abiaSupabase.auth.getUser();
+
+        if (userError || !user) {
+          commentMessage.textContent =
+            "Please sign in to comment.";
+          return;
+        }
+
+        const { error } = await abiaSupabase
+          .from("comments")
+          .insert({
+            post_id: post.id,
+            user_id: user.id,
+            content: content
+          });
+
+        if (error) {
+          console.error("Could not save comment:", error.message);
+          commentMessage.textContent =
+            "Comment failed: " + error.message;
+          return;
+        }
+
+        commentInput.value = "";
+        commentMessage.textContent = "Comment added successfully!";
+        await loadComments();
+      } catch (error) {
+        console.error("Comment error:", error);
+        commentMessage.textContent =
+          "Something went wrong. Please try again.";
+      } finally {
+        commentButton.disabled = false;
+      }
+    });
+
+    await loadComments();
+
   }
 }
 const createPostForm = document.getElementById("createPostForm");
