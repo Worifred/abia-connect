@@ -693,16 +693,103 @@ async function loadMyProfile() {
   profileMessage.textContent = "";
 }
 
+
+async function setupMyProfileEditor() {
+  const editButton = document.getElementById("homeEditProfileButton");
+  const editForm = document.getElementById("homeEditProfileForm");
+  const editMessage = document.getElementById("homeEditMessage");
+
+  if (!editButton || !editForm || !editMessage) return;
+
+  const { data: { user }, error: userError } =
+    await abiaSupabase.auth.getUser();
+
+  if (userError || !user) {
+    editMessage.textContent = "Please sign in to edit your profile.";
+    editButton.disabled = true;
+    return;
+  }
+
+  const { data: profile, error } = await abiaSupabase
+    .from("member_profiles")
+    .select("full_name, age, gender, location, abia_connection, about_me")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error || !profile) {
+    editMessage.textContent = "Could not load your profile for editing.";
+    console.error("Profile editor loading error:", error);
+    return;
+  }
+
+  document.getElementById("homeEditName").value =
+    profile.full_name || "";
+  document.getElementById("homeEditAge").value =
+    profile.age ?? "";
+  document.getElementById("homeEditGender").value =
+    profile.gender || "";
+  document.getElementById("homeEditLocation").value =
+    profile.location || "";
+  document.getElementById("homeEditConnection").value =
+    profile.abia_connection || "";
+  document.getElementById("homeEditAbout").value =
+    profile.about_me || "";
+
+  editButton.addEventListener("click", function () {
+    editForm.hidden = !editForm.hidden;
+    editMessage.textContent = "";
+    editButton.textContent = editForm.hidden
+      ? "✏️ Edit My Profile"
+      : "✖ Close Edit Profile";
+  });
+
+  editForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    editMessage.textContent = "Saving your changes...";
+
+    const updates = {
+      full_name: document.getElementById("homeEditName").value.trim(),
+      age: Number(document.getElementById("homeEditAge").value),
+      gender: document.getElementById("homeEditGender").value.trim(),
+      location: document.getElementById("homeEditLocation").value.trim(),
+      abia_connection: document.getElementById("homeEditConnection").value.trim(),
+      about_me: document.getElementById("homeEditAbout").value.trim()
+    };
+
+    const { data: savedProfile, error: saveError } = await abiaSupabase
+      .from("member_profiles")
+      .update(updates)
+      .eq("id", user.id)
+      .select("id");
+
+    if (saveError || !savedProfile || savedProfile.length === 0) {
+      console.error("Profile save error:", saveError);
+      editMessage.textContent =
+        "Could not save changes. Please try again.";
+      return;
+    }
+
+    editMessage.textContent = "Profile updated successfully!";
+    editForm.hidden = true;
+    editButton.textContent = "✏️ Edit My Profile";
+
+    await loadMyProfile();
+  });
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", function () {
     loadCommunityPosts();
     loadNotifications();
     loadFriends();
     loadMyProfile();
+    setupMyProfileEditor();
   });
 } else {
   loadCommunityPosts();
   loadNotifications();
   loadFriends();
   loadMyProfile();
+  setupMyProfileEditor();
 }
