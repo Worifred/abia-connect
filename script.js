@@ -854,3 +854,180 @@ if (document.readyState === "loading") {
   loadMyProfile();
   setupMyProfileEditor();
 }
+
+
+/* ABIA CONNECT CHAT */
+async function setupAbiaConnectChat() {
+  const status = document.getElementById("chatStatus");
+  const list = document.getElementById("conversationsList");
+  const chatWindow = document.getElementById("chatWindow");
+  const partnerName = document.getElementById("chatPartnerName");
+  const messagesBox = document.getElementById("chatMessages");
+  const messageForm = document.getElementById("chatMessageForm");
+  const messageInput = document.getElementById("chatMessageInput");
+  const sendButton = document.getElementById("sendChatMessageButton");
+
+  // This code only runs on the dashboard containing the chat interface.
+  if (
+    !status || !list || !chatWindow || !partnerName ||
+    !messagesBox || !messageForm || !messageInput || !sendButton
+  ) return;
+
+  const { data: { user }, error: userError } =
+    await abiaSupabase.auth.getUser();
+
+  if (userError || !user) {
+    status.textContent = "Please sign in to access your chats.";
+    return;
+  }
+
+  let activeConversationId = null;
+
+  async function loadMessages(conversationId) {
+    messagesBox.replaceChildren();
+    messagesBox.textContent = "Loading messages...";
+
+    const { data: messages, error } = await abiaSupabase
+      .from("messages")
+      .select("id, created_at, sender_id, message")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Load messages error:", error);
+      messagesBox.textContent =
+        "Could not load messages. Please try again.";
+      return;
+    }
+
+    messagesBox.replaceChildren();
+
+    if (!messages || messages.length === 0) {
+      messagesBox.textContent = "No messages yet. Say hello!";
+      return;
+    }
+
+    messages.forEach(function (item) {
+      const wrapper = document.createElement("div");
+      wrapper.style.marginBottom = "12px";
+
+      const sender = document.createElement("strong");
+      sender.textContent =
+        item.sender_id === user.id ? "You: " : partnerName.textContent + ": ";
+
+      const content = document.createElement("span");
+      content.textContent = item.message;
+
+      const time = document.createElement("small");
+      time.textContent = " · " + new Date(item.created_at).toLocaleString();
+
+      wrapper.append(sender, content, time);
+      messagesBox.appendChild(wrapper);
+    });
+
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+  }
+
+  async function openConversation(conversation) {
+    activeConversationId = conversation.id;
+    partnerName.textContent = conversation.partnerName;
+    chatWindow.hidden = false;
+    await loadMessages(conversation.id);
+  }
+
+  status.textContent = "Loading your matched conversations...";
+  list.replaceChildren();
+
+  const { data: conversations, error: conversationError } =
+    await abiaSupabase
+      .from("conversations")
+      .select("id, user_one, user_two")
+      .or(`user_one.eq.${user.id},user_two.eq.${user.id}`);
+
+  if (conversationError) {
+    console.error("Load conversations error:", conversationError);
+    status.textContent =
+      "Could not load your chats. Please refresh and try again.";
+    return;
+  }
+
+  if (!conversations || conversations.length === 0) {
+    status.textContent =
+      "No conversations yet. When two members choose Love for each other, their chat will appear here.";
+    return;
+  }
+
+  status.textContent = "Your conversations";
+
+  for (const conversation of conversations) {
+    const otherUserId =
+      conversation.user_one === user.id
+        ? conversation.user_two
+        : conversation.user_one;
+
+    const { data: profile, error: profileError } = await abiaSupabase
+      .from("member_profiles")
+      .select("full_name")
+      .eq("id", otherUserId)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Load chat partner error:", profileError);
+    }
+
+    const item = {
+      id: conversation.id,
+      partnerName: profile?.full_name || "Matched member"
+    };
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Chat with " + item.partnerName;
+    button.style.margin = "6px";
+    button.addEventListener("click", function () {
+      openConversation(item);
+    });
+
+    list.appendChild(button);
+  }
+
+  messageForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    if (!activeConversationId) {
+      status.textContent = "Please open a conversation first.";
+      return;
+    }
+
+    const message = messageInput.value.trim();
+
+    if (!message) return;
+
+    sendButton.disabled = true;
+    sendButton.textContent = "Sending...";
+
+    const { error } = await abiaSupabase
+      .from("messages")
+      .insert({
+        conversation_id: activeConversationId,
+        sender_id: user.id,
+        message: message
+      });
+
+    sendButton.disabled = false;
+    sendButton.textContent = "Send Message";
+
+    if (error) {
+      console.error("Send message error:", error);
+      status.textContent =
+        "Message could not be sent. Please try again.";
+      return;
+    }
+
+    messageInput.value = "";
+    status.textContent = "Message sent.";
+    await loadMessages(activeConversationId);
+  });
+}
+
+setupAbiaConnectChat();
