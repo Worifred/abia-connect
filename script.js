@@ -866,6 +866,8 @@ async function setupAbiaConnectChat() {
   const messageForm = document.getElementById("chatMessageForm");
   const messageInput = document.getElementById("chatMessageInput");
   const sendButton = document.getElementById("sendChatMessageButton");
+  const chatUnreadBadge = document.getElementById("chatUnreadBadge");
+const notificationUnreadBadge = document.getElementById("notificationUnreadBadge");
 
   // This code only runs on the dashboard containing the chat interface.
   if (
@@ -882,6 +884,101 @@ async function setupAbiaConnectChat() {
   }
 
   let activeConversationId = null;
+  
+let loadedConversations = [];
+
+function updateUnreadBadges(count) {
+  [chatUnreadBadge, notificationUnreadBadge].forEach(function (badge) {
+    if (!badge) return;
+
+    badge.textContent = count > 99 ? "99+" : String(count);
+    badge.hidden = count === 0;
+  });
+}
+
+async function refreshUnreadCounts() {
+  let totalUnread = 0;
+
+  for (const conversation of loadedConversations) {
+    const { data: readStatus, error: readError } = await abiaSupabase
+      .from("conversation_reads")
+      .select("last_read_at")
+      .eq("conversation_id", String(conversation.id))
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (readError) {
+      console.error("Unread status error:", readError);
+      continue;
+    }
+
+    let query = abiaSupabase
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .eq("conversation_id", conversation.id)
+      .neq("sender_id", user.id);
+
+    if (readStatus && readStatus.last_read_at) {
+      query = query.gt("created_at", readStatus.last_read_at);
+    }
+
+    const { count, error } = await query;
+
+    if (error) {
+      console.error("Unread message count error:", error);
+      continue;
+    }
+
+    totalUnread += count || 0;
+  }
+
+  updateUnreadBadges(totalUnread);
+}
+
+  
+async function markConversationRead(conversationId) {
+  const { data: existing, error: findError } = await abiaSupabase
+    .from("conversation_reads")
+    .select("id")
+    .eq("conversation_id", String(conversationId))
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (findError) {
+    console.error("Find read status error:", findError);
+    return;
+  }
+
+  const readAt = new Date().toISOString();
+
+  if (existing) {
+    const { error } = await abiaSupabase
+      .from("conversation_reads")
+      .update({ last_read_at: readAt })
+      .eq("id", existing.id);
+
+    if (error) {
+      console.error("Update read status error:", error);
+      return;
+    }
+  } else {
+    const { error } = await abiaSupabase
+      .from("conversation_reads")
+      .insert({
+        conversation_id: String(conversationId),
+        user_id: user.id,
+        last_read_at: readAt
+      });
+
+    if (error) {
+      console.error("Create read status error:", error);
+      return;
+    }
+  }
+
+  await refreshUnreadCounts();
+}
+
 
   async function loadMessages(conversationId) {
     messagesBox.replaceChildren();
@@ -928,12 +1025,16 @@ async function setupAbiaConnectChat() {
     messagesBox.scrollTop = messagesBox.scrollHeight;
   }
 
-  async function openConversation(conversation) {
-    activeConversationId = conversation.id;
-    partnerName.textContent = conversation.partnerName;
-    chatWindow.hidden = false;
-    await loadMessages(conversation.id);
-  }
+  
+async function openConversation(conversation) {
+  activeConversationId = conversation.id;
+  partnerName.textContent = conversation.partnerName;
+  chatWindow.hidden = false;
+
+  await loadMessages(conversation.id);
+  await markConversationRead(conversation.id);
+}
+
 
   status.textContent = "Loading your matched conversations...";
   list.replaceChildren();
@@ -958,6 +1059,8 @@ async function setupAbiaConnectChat() {
   }
 
   status.textContent = "Your conversations";
+  loadedConversations = conversations;
+await refreshUnreadCounts();
 
   for (const conversation of conversations) {
     const otherUserId =
