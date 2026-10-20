@@ -382,8 +382,7 @@
   </div>
 </section>
 
-
-    
+   
 <section class="members-card" id="friends">
   <h2>👥 Find Friends</h2>
   <p>Discover people in the Abia Connect community, view their profiles, and show interest.</p>
@@ -396,35 +395,50 @@
 </section>
 
 
-   
-<section class="members-card" id="chats">
-  <h2>Chats</h2>
-  <p id="chatStatus">Loading your matched conversations...</p>
+   <section class="members-card abia-chat-card" id="chats">
+  <div class="abia-chat-heading">
+    <div>
+      <h2>Messages ❤️</h2>
+      <p>Connect, chat, and get to know each other.</p>
+    </div>
+  </div>
 
-  <div id="conversationsList"></div>
+  <div class="abia-chat-layout">
+    <aside class="abia-conversations-panel">
+      <h3>Your Matches</h3>
+      <p id="chatStatus">Loading your matched conversations...</p>
+      <div id="conversationsList"></div>
+    </aside>
 
-  <div id="chatWindow" hidden>
-    <h3 id="chatPartnerName">Conversation</h3>
+    <div id="chatWindow" class="abia-chat-window" hidden>
+      <div class="abia-chat-partner">
+        <div class="abia-chat-avatar">❤️</div>
+        <div>
+          <h3 id="chatPartnerName">Conversation</h3>
+          <p>You're connected on Abia Connect</p>
+        </div>
+      </div>
 
-    <div
-      id="chatMessages"
-      aria-live="polite"
-      style="max-height: 350px; overflow-y: auto; padding: 12px;"
-    ></div>
+      <div
+        id="chatMessages"
+        class="abia-chat-messages"
+        aria-live="polite"
+      ></div>
 
-    <form id="chatMessageForm">
-      <textarea
-        id="chatMessageInput"
-        placeholder="Write your message..."
-        maxlength="2000"
-        required
-        rows="3"
-      ></textarea>
+      <form id="chatMessageForm" class="abia-chat-form">
+        <textarea
+          id="chatMessageInput"
+          placeholder="Write a message..."
+          maxlength="2000"
+          required
+          rows="2"
+        ></textarea>
 
-      <button type="submit" id="sendChatMessageButton">
-        Send Message
-      </button>
-    </form>
+        <button type="submit" id="sendChatMessageButton">
+          <span>Send</span> ❤️
+        </button>
+      </form>
+    </div>
   </div>
 </section>
 
